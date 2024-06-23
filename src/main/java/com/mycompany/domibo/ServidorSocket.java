@@ -6,6 +6,7 @@
 package com.mycompany.domibo;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -58,6 +59,17 @@ public class ServidorSocket implements IEscuchadorDeEventosDelServidor {
     
     public ConcurrentHashMap<String, Cliente> obtenerClientes(){
         return this.clientes;
+    }
+    
+    public void enviarMensajeACliente(String token, Object mensaje) {
+        Cliente cliente = clientes.get(token);
+        try {
+            Socket socket=cliente.obtenerClienteSocket();
+            PrintWriter output = new PrintWriter(socket.getOutputStream(), true);
+            output.println(mensaje);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
