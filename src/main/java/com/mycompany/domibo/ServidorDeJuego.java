@@ -38,4 +38,8 @@ public class ServidorDeJuego implements IObservadorDeServidorSocket {
         }
     }
     
+    public static void main(String[] args) {
+        ServidorDeJuego servidorDeJuego = new ServidorDeJuego();
+    }
+    
 }

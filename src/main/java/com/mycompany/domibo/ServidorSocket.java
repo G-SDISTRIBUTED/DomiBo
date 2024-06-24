@@ -5,6 +5,7 @@
  */
 package com.mycompany.domibo;
 
+import java.awt.Color;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
@@ -19,24 +20,20 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ServidorSocket implements IEscuchadorDeEventosDelServidor {
     private ServerSocket servidorSocket;
+    private int puerto;
     private ConcurrentHashMap<String, Cliente> clientes;
     private EscuchadorDeConexiones escuchadorDeConexiones;
     private VerificadorDeConexiones verificadorDeConexiones;
+    private FormularioDelServidorSocket formulario;
     private List<IObservadorDeServidorSocket> observadores;
             
     public ServidorSocket(int puerto){
-        try {
-            servidorSocket = new ServerSocket(puerto);
-            clientes = new ConcurrentHashMap<>();
-            escuchadorDeConexiones=new EscuchadorDeConexiones(this,servidorSocket);
-            escuchadorDeConexiones.start();
-            verificadorDeConexiones=new VerificadorDeConexiones(this);
-            verificadorDeConexiones.start();
-            observadores= new ArrayList<>();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        
+        this.puerto=puerto;
+        clientes = new ConcurrentHashMap<>();
+        verificadorDeConexiones=new VerificadorDeConexiones(this);
+        verificadorDeConexiones.start();
+        observadores= new ArrayList<>();
+        mostrarFormulario();
     }
     
     public Cliente obtenerCliente(String token){
@@ -71,13 +68,46 @@ public class ServidorSocket implements IEscuchadorDeEventosDelServidor {
             e.printStackTrace();
         }
     }
+    
+    public void iniciar() {
+        try {
+        servidorSocket = new ServerSocket(puerto);
+        escuchadorDeConexiones=new EscuchadorDeConexiones(this,servidorSocket);
+        escuchadorDeConexiones.start();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void detener() {
+        try {
+        servidorSocket.close();
+        escuchadorDeConexiones.interrupt();
+        detenerClientes();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public void detenerClientes(){
+        for (Cliente cliente : clientes.values()) {
+            cliente.liberarRecursos();
+        }
+        clientes.clear();
+    }
+    
+    private void mostrarFormulario() {
+        formulario = new FormularioDelServidorSocket(this);
+        formulario.setVisible(true);
+    }
 
     @Override
     public void clienteConectado(EventoDeClienteConectado evento) {
         Socket clienteSocket=evento.obtenerClienteSocket();
         Cliente cliente = new Cliente(this,clienteSocket);
-        String token=cliente.obtenerToken();
-        clientes.put(token, cliente);
+        String tokenDelCliente=cliente.obtenerToken();
+        clientes.put(tokenDelCliente, cliente);
+        formulario.actualizarTextArea("Cliente "+tokenDelCliente+" conectado",Color.GREEN);
     }
 
     @Override
@@ -86,6 +116,7 @@ public class ServidorSocket implements IEscuchadorDeEventosDelServidor {
         Cliente cliente=obtenerCliente(tokenDelCliente);
         cliente.liberarRecursos();
         clientes.remove(tokenDelCliente);
+        formulario.actualizarTextArea("Cliente "+tokenDelCliente+" desconectado",Color.RED);
     }
 
     @Override
@@ -93,5 +124,6 @@ public class ServidorSocket implements IEscuchadorDeEventosDelServidor {
         String mensaje = evento.obtenerMensaje();
         String token = evento.obtenerTokenDeCliente();
         notificarALosObservadores(mensaje,token);
+        formulario.actualizarTextArea("Cliente "+token+" mando el mensaje: "+mensaje,Color.GRAY);
     }
 }
