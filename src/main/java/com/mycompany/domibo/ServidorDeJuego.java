@@ -20,22 +20,26 @@ public class ServidorDeJuego implements IObservadorDeServidorSocket {
     }
     @Override
     public void paqueteRecibido(String mensaje,String tokenDelCliente) {
-        Paquete paquete=Paquete.deserializar(mensaje);
-        String protocolo = paquete.obtenerProtocolo();
-        switch (protocolo) {
-            case "LOGIN":
-                //
-                break;
-            case "LOGOUT":
-                //
-                break;
-            case "REGISTER":
-                //
-                break;
-            default:
-                //
-                break;
-        }
+//        Paquete paquete=Paquete.deserializar(mensaje);
+//        String protocolo = paquete.obtenerProtocolo();
+//        switch (protocolo) {
+//            case "LOGIN":
+//                //
+//                break;
+//            case "LOGOUT":
+//                //
+//                break;
+//            case "REGISTER":
+//                //
+//                break;
+//            default:
+//                //
+//                break;
+//        }
+    }
+    
+    public static void main(String[] args) {
+        ServidorDeJuego servidorDeJuego = new ServidorDeJuego();
     }
     
 }
