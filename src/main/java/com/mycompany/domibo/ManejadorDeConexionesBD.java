@@ -45,12 +45,15 @@ public class ManejadorDeConexionesBD {
         }
     }
     
-    public boolean verificarInicioDeSesion(String username, String password) {
+    public boolean verificarInicioDeSesion(String parametros) {
+        JSONObject parametrosJson = new JSONObject(parametros);
+        String nombreDeUsuario = parametrosJson.getString("nombreDeUsuario");
+        String contrasena = parametrosJson.getString("contrasena");
         try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS)) {
             String query = "SELECT * FROM public.users WHERE username = ? AND password = ?";
             PreparedStatement statement = conn.prepareStatement(query);
-            statement.setString(1, username);
-            statement.setString(2, password);
+            statement.setString(1, nombreDeUsuario);
+            statement.setString(2, contrasena);
             ResultSet resultSet = statement.executeQuery();
             return resultSet.next();
         } catch (SQLException e) {

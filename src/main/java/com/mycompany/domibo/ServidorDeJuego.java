@@ -28,14 +28,23 @@ public class ServidorDeJuego implements IObservadorDeServidorSocket {
         String parametros=paquete.obtenerParametros();
         switch (protocolo) {
             case "LOGIN":
-                //
+                Boolean respuestaDeVerificacion=manejadorDeConexionesBD.verificarInicioDeSesion(parametros);
+                if(respuestaDeVerificacion){
+                    JSONObject parametrosDeRespuesta = new JSONObject();
+                    parametrosDeRespuesta.put("estado", "true");
+                    String parametrosString=parametrosDeRespuesta.toString();
+                    String protocoloDeRespuesta="LOGIN";
+                    Paquete paqueteDeRespuesta=new Paquete(protocoloDeRespuesta,parametrosString);
+                    String paqueteSerializado=Paquete.serializar(paqueteDeRespuesta);
+                    servidorSocket.enviarMensajeACliente(tokenDelCliente, paqueteSerializado);
+                }
                 break;
             case "LOGOUT":
                 //
                 break;
             case "REGISTRO":
-                Boolean respuesta=manejadorDeConexionesBD.registrarJugadorEnLaBD(parametros);
-                if(respuesta){
+                Boolean respuestaDeRegistro=manejadorDeConexionesBD.registrarJugadorEnLaBD(parametros);
+                if(respuestaDeRegistro){
                     JSONObject parametrosDeRespuesta = new JSONObject();
                     parametrosDeRespuesta.put("estado", "true");
                     String parametrosString=parametrosDeRespuesta.toString();
