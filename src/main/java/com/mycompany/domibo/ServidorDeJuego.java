@@ -81,7 +81,7 @@ public class ServidorDeJuego implements IObservadorDeServidorSocket {
                     }
                 }
                 break;
-
+            }
             case "MOVER_FICHA":{
                 System.out.println("Llega hasta mover ficha servidor");
                 JSONObject parametrosJson = new JSONObject(parametros);
