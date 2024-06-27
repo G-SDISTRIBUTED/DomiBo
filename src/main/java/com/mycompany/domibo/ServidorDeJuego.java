@@ -81,9 +81,20 @@ public class ServidorDeJuego implements IObservadorDeServidorSocket {
                     }
                 }
                 break;
-            }
-            case "LOGOUT":{
-                //
+
+            case "MOVER_FICHA":{
+                System.out.println("Llega hasta mover ficha servidor");
+                JSONObject parametrosJson = new JSONObject(parametros);
+                String ficha = parametrosJson.getString("ficha");
+                String posicion = parametrosJson.getString("posicion");
+                JSONObject movimientoJson = new JSONObject();
+                movimientoJson.put("ficha", ficha);
+                movimientoJson.put("posicion", posicion);
+                String parametrosStringMover=movimientoJson.toString();
+                String protocoloDeRespuestaMover="MOVER_FICHA";
+                Paquete paqueteDeRespuestaMover=new Paquete(protocoloDeRespuestaMover,parametrosStringMover);
+                String paqueteSerializadoMover=Paquete.serializar(paqueteDeRespuestaMover);
+                servidorSocket.enviarMensajeAClientes(tokenDelCliente, paqueteSerializadoMover);
                 break;
             }
             case "REGISTRO": {
