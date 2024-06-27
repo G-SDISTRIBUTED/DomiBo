@@ -189,7 +189,9 @@ public class ServidorDeJuego implements IObservadorDeServidorSocket {
                         parametrosDeRespuesta.put("nombre", sala.getName());
                         parametrosDeRespuesta.put("idCreador", sala.getCreador().getId());
                         parametrosDeRespuesta.put("nombreCreador", sala.getCreador().getUsername());
-
+                        Usuario usuario =  new Usuario();
+                        usuario.addSocketToken(tokenDelCliente);
+                        sala.addJugador(usuario);
                         String parametrosString=parametrosDeRespuesta.toString();
                         String protocoloDeRespuesta="ENTRAR";
                         Paquete paqueteDeRespuesta=new Paquete(protocoloDeRespuesta,parametrosString);
@@ -201,6 +203,27 @@ public class ServidorDeJuego implements IObservadorDeServidorSocket {
                 
               break; 
             } 
+            case "INICIAR": {
+                JSONObject parametrosJson = new JSONObject(parametros);
+                String tokenSala = parametrosJson.getString("tokenSala");
+                for(Sala sala: salas){
+                    if(sala.getToken().equals(tokenSala)){
+                        List<Usuario> jugadores=sala.getJugadores();
+                        for(Usuario usuario : jugadores){
+                            String tokenJugador=usuario.getLastSocketToken();
+                            JSONObject parametrosDeRespuesta = new JSONObject();
+                            parametrosDeRespuesta.put("estado", "true");
+                            String parametrosString=parametrosDeRespuesta.toString();
+                            String protocoloDeRespuesta="INICIAR";
+                            Paquete paqueteDeRespuesta=new Paquete(protocoloDeRespuesta,parametrosString);
+                            String paqueteSerializado=Paquete.serializar(paqueteDeRespuesta);
+                            servidorSocket.enviarMensajeACliente(tokenJugador, paqueteSerializado);
+                        }
+                        break;
+                    }
+                }
+                break;
+            }
             default:
                 //
                 break;
