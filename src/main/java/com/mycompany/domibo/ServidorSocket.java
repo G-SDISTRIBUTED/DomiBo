@@ -126,4 +126,21 @@ public class ServidorSocket implements IEscuchadorDeEventosDelServidor {
         notificarALosObservadores(mensaje,token);
         formulario.actualizarTextArea("Cliente "+token+" mando el mensaje: "+mensaje,Color.GRAY);
     }
+
+    public void enviarMensajeAClientes(String tokenDelCliente, String paqueteSerializadoMover) {
+        for (ConcurrentHashMap.Entry<String, Cliente> entry : clientes.entrySet()) {
+            String token = entry.getKey();
+            Cliente cliente = entry.getValue();
+            
+            if (!token.equals(tokenDelCliente)) {
+                try {
+                    Socket socket = cliente.obtenerClienteSocket();
+                    PrintWriter output = new PrintWriter(socket.getOutputStream(), true);
+                    output.println(paqueteSerializadoMover);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
 }
